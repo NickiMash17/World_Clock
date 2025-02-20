@@ -1,0 +1,878 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>World Clock Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #3a6ea5;
+            --secondary-color: #f0f4f8;
+            --accent-color: #ff6b6b;
+            --text-dark: #2d3748;
+            --text-light: #718096;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4e9f2 100%);
+            margin: 0;
+            padding: 20px;
+            color: var(--text-dark);
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            padding: 30px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .background-pattern {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: radial-gradient(circle at 10% 20%, rgba(58, 110, 165, 0.05) 0%, transparent 20%),
+                             radial-gradient(circle at 90% 80%, rgba(255, 107, 107, 0.05) 0%, transparent 20%);
+            z-index: 0;
+        }
+        
+        .content {
+            position: relative;
+            z-index: 1;
+        }
+        
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            border-bottom: 1px solid #edf2f7;
+            padding-bottom: 20px;
+        }
+        
+        h1 {
+            margin: 0;
+            color: var(--primary-color);
+            font-size: 2.2rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        h1 i {
+            color: var(--accent-color);
+        }
+        
+        .theme-toggle {
+            background: var(--secondary-color);
+            border: none;
+            border-radius: 50px;
+            padding: 8px 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        
+        .theme-toggle:hover {
+            background: #e2e8f0;
+        }
+        
+        .clocks {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+        
+        .clock {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 2px 15px rgba(0, 0, 0, 0.08);
+            transition: var(--transition);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .clock:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+        
+        .clock-background {
+            position: absolute;
+            top: 0;
+            right: 0;
+            font-size: 6rem;
+            opacity: 0.03;
+            line-height: 1;
+            transform: translate(10%, -10%);
+        }
+        
+        .city {
+            font-size: 1.4rem;
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: var(--text-dark);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .timezone {
+            font-size: 0.85rem;
+            color: var(--text-light);
+            margin-bottom: 15px;
+        }
+        
+        .time {
+            font-size: 2.2rem;
+            font-weight: 300;
+            margin-bottom: 5px;
+            color: var(--primary-color);
+        }
+        
+        .date {
+            font-size: 0.95rem;
+            color: var(--text-light);
+            margin-bottom: 15px;
+        }
+        
+        .clock-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 10px;
+        }
+        
+        .time-difference {
+            font-size: 0.85rem;
+            color: var(--text-light);
+            background: var(--secondary-color);
+            padding: 4px 10px;
+            border-radius: 50px;
+        }
+        
+        .clock-actions {
+            display: flex;
+            gap: 5px;
+        }
+        
+        .btn-icon {
+            background: none;
+            border: none;
+            color: var(--text-light);
+            cursor: pointer;
+            padding: 5px;
+            border-radius: 5px;
+            transition: var(--transition);
+        }
+        
+        .btn-icon:hover {
+            background: var(--secondary-color);
+            color: var(--primary-color);
+        }
+        
+        .add-clock-section {
+            background: var(--secondary-color);
+            border-radius: 10px;
+            padding: 25px;
+            margin-top: 30px;
+        }
+        
+        .section-title {
+            margin-top: 0;
+            margin-bottom: 20px;
+            color: var(--text-dark);
+            font-size: 1.3rem;
+            font-weight: 600;
+        }
+        
+        .add-clock-form {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            align-items: flex-end;
+        }
+        
+        .form-group {
+            flex: 1;
+            min-width: 200px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+            color: var(--text-light);
+        }
+        
+        select, input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            font-size: 1rem;
+            background: white;
+            color: var(--text-dark);
+            transition: var(--transition);
+        }
+        
+        select:focus, input:focus {
+            border-color: var(--primary-color);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(58, 110, 165, 0.1);
+        }
+        
+        .btn {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 12px 20px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .btn:hover {
+            background: #2c5282;
+            transform: translateY(-2px);
+        }
+        
+        .btn-remove {
+            background: none;
+            color: var(--accent-color);
+            border: 1px solid var(--accent-color);
+            border-radius: 6px;
+            padding: 5px 10px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        
+        .btn-remove:hover {
+            background: rgba(255, 107, 107, 0.1);
+        }
+        
+        .world-map {
+            margin-top: 40px;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            height: 300px;
+            background: #e6f2ff;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .map-placeholder {
+            opacity: 0.7;
+            font-size: 2.5rem;
+            color: var(--primary-color);
+        }
+        
+        footer {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #edf2f7;
+            display: flex;
+            justify-content: space-between;
+            color: var(--text-light);
+            font-size: 0.9rem;
+        }
+        
+        .current-time {
+            font-weight: 500;
+        }
+        
+        /* Dark theme */
+        body.dark-theme {
+            background: linear-gradient(135deg, #1a202c 0%, #2d3748 100%);
+            color: #e2e8f0;
+        }
+        
+        body.dark-theme .container {
+            background-color: #2d3748;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+        }
+        
+        body.dark-theme header {
+            border-bottom-color: #4a5568;
+        }
+        
+        body.dark-theme h1 {
+            color: #90cdf4;
+        }
+        
+        body.dark-theme .theme-toggle {
+            background: #4a5568;
+            color: #e2e8f0;
+        }
+        
+        body.dark-theme .clock {
+            background: #3a4a61;
+            border-color: #4a5568;
+        }
+        
+        body.dark-theme .city {
+            color: #e2e8f0;
+        }
+        
+        body.dark-theme .time {
+            color: #90cdf4;
+        }
+        
+        body.dark-theme .timezone, 
+        body.dark-theme .date {
+            color: #cbd5e0;
+        }
+        
+        body.dark-theme .time-difference {
+            background: #4a5568;
+            color: #cbd5e0;
+        }
+        
+        body.dark-theme .btn-icon {
+            color: #cbd5e0;
+        }
+        
+        body.dark-theme .btn-icon:hover {
+            background: #4a5568;
+            color: #90cdf4;
+        }
+        
+        body.dark-theme .add-clock-section {
+            background: #3a4a61;
+        }
+        
+        body.dark-theme select, 
+        body.dark-theme input {
+            background: #2d3748;
+            border-color: #4a5568;
+            color: #e2e8f0;
+        }
+        
+        body.dark-theme .world-map {
+            background: #2a4365;
+        }
+        
+        body.dark-theme .map-placeholder {
+            color: #90cdf4;
+        }
+        
+        body.dark-theme footer {
+            border-top-color: #4a5568;
+        }
+        
+        @media (max-width: 768px) {
+            header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+            
+            .add-clock-form {
+                flex-direction: column;
+            }
+            
+            .form-group {
+                width: 100%;
+            }
+        }
+        
+        /* Analog clock styles */
+        .analog-clock {
+            position: relative;
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: white;
+            border: 2px solid #e2e8f0;
+            margin-left: auto;
+            box-shadow: inset 0 0 0 2px white, inset 0 0 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        body.dark-theme .analog-clock {
+            background: #4a5568;
+            border-color: #2d3748;
+            box-shadow: inset 0 0 0 2px #4a5568, inset 0 0 4px rgba(0, 0, 0, 0.3);
+        }
+        
+        .clock-center {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 6px;
+            height: 6px;
+            margin: -3px 0 0 -3px;
+            background: var(--accent-color);
+            border-radius: 50%;
+            z-index: 3;
+        }
+        
+        .hour-hand, .minute-hand, .second-hand {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform-origin: center bottom;
+            z-index: 2;
+        }
+        
+        .hour-hand {
+            width: 4px;
+            height: 20px;
+            margin: -20px 0 0 -2px;
+            background: var(--text-dark);
+            border-radius: 4px;
+        }
+        
+        .minute-hand {
+            width: 3px;
+            height: 30px;
+            margin: -30px 0 0 -1.5px;
+            background: var(--text-dark);
+            border-radius: 3px;
+        }
+        
+        .second-hand {
+            width: 1px;
+            height: 35px;
+            margin: -35px 0 0 -0.5px;
+            background: var(--accent-color);
+            border-radius: 1px;
+        }
+        
+        body.dark-theme .hour-hand,
+        body.dark-theme .minute-hand {
+            background: #e2e8f0;
+        }
+        
+        /* Clock numbers */
+        .analog-clock .number {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            font-size: 8px;
+            text-align: center;
+            transform: rotate(var(--rotation));
+        }
+        
+        .analog-clock .number span {
+            display: inline-block;
+            transform: rotate(calc(-1 * var(--rotation)));
+        }
+        
+        .analog-clock .number:nth-child(1) { --rotation: 0deg; }
+        .analog-clock .number:nth-child(2) { --rotation: 30deg; }
+        .analog-clock .number:nth-child(3) { --rotation: 60deg; }
+        .analog-clock .number:nth-child(4) { --rotation: 90deg; }
+        .analog-clock .number:nth-child(5) { --rotation: 120deg; }
+        .analog-clock .number:nth-child(6) { --rotation: 150deg; }
+        .analog-clock .number:nth-child(7) { --rotation: 180deg; }
+        .analog-clock .number:nth-child(8) { --rotation: 210deg; }
+        .analog-clock .number:nth-child(9) { --rotation: 240deg; }
+        .analog-clock .number:nth-child(10) { --rotation: 270deg; }
+        .analog-clock .number:nth-child(11) { --rotation: 300deg; }
+        .analog-clock .number:nth-child(12) { --rotation: 330deg; }
+        
+        /* Animation for clock transitions */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .clock {
+            animation: fadeIn 0.5s ease-out forwards;
+        }
+        
+        /* Clock markers */
+        .clock-marker {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+        }
+        
+        .clock-marker:before {
+            content: '';
+            position: absolute;
+            top: 5px;
+            left: 50%;
+            width: 1px;
+            height: 5px;
+            background-color: #cbd5e0;
+            transform: translateX(-50%);
+        }
+        
+        .clock-marker.main:before {
+            height: 7px;
+            width: 2px;
+            background-color: var(--text-dark);
+        }
+        
+        body.dark-theme .clock-marker:before {
+            background-color: #718096;
+        }
+        
+        body.dark-theme .clock-marker.main:before {
+            background-color: #e2e8f0;
+        }
+        
+        .clock-marker:nth-child(1) { transform: rotate(0deg); }
+        .clock-marker:nth-child(2) { transform: rotate(30deg); }
+        .clock-marker:nth-child(3) { transform: rotate(60deg); }
+        .clock-marker:nth-child(4) { transform: rotate(90deg); }
+        .clock-marker:nth-child(5) { transform: rotate(120deg); }
+        .clock-marker:nth-child(6) { transform: rotate(150deg); }
+        .clock-marker:nth-child(7) { transform: rotate(180deg); }
+        .clock-marker:nth-child(8) { transform: rotate(210deg); }
+        .clock-marker:nth-child(9) { transform: rotate(240deg); }
+        .clock-marker:nth-child(10) { transform: rotate(270deg); }
+        .clock-marker:nth-child(11) { transform: rotate(300deg); }
+        .clock-marker:nth-child(12) { transform: rotate(330deg); }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="background-pattern"></div>
+        <div class="content">
+            <header>
+                <h1><i class="fas fa-globe-americas"></i> World Clock Dashboard</h1>
+                <button id="themeToggle" class="theme-toggle">
+                    <i class="fas fa-moon"></i>
+                    <span>Dark Mode</span>
+                </button>
+            </header>
+            
+            <div class="clocks" id="clocksContainer">
+                <!-- Clock elements will be inserted here by JavaScript -->
+            </div>
+            
+            <div class="add-clock-section">
+                <h2 class="section-title">Add New Clock</h2>
+                <div class="add-clock-form">
+                    <div class="form-group">
+                        <label for="timezoneSelect">Select City/Timezone</label>
+                        <select id="timezoneSelect">
+                            <option value="">Choose a location...</option>
+                            <optgroup label="North America">
+                                <option value="America/New_York">New York</option>
+                                <option value="America/Chicago">Chicago</option>
+                                <option value="America/Denver">Denver</option>
+                                <option value="America/Los_Angeles">Los Angeles</option>
+                                <option value="America/Toronto">Toronto</option>
+                                <option value="America/Vancouver">Vancouver</option>
+                                <option value="America/Mexico_City">Mexico City</option>
+                            </optgroup>
+                            <optgroup label="Europe">
+                                <option value="Europe/London">London</option>
+                                <option value="Europe/Paris">Paris</option>
+                                <option value="Europe/Berlin">Berlin</option>
+                                <option value="Europe/Rome">Rome</option>
+                                <option value="Europe/Madrid">Madrid</option>
+                                <option value="Europe/Moscow">Moscow</option>
+                            </optgroup>
+                            <optgroup label="Asia & Middle East">
+                                <option value="Asia/Tokyo">Tokyo</option>
+                                <option value="Asia/Shanghai">Shanghai</option>
+                                <option value="Asia/Hong_Kong">Hong Kong</option>
+                                <option value="Asia/Singapore">Singapore</option>
+                                <option value="Asia/Dubai">Dubai</option>
+                                <option value="Asia/Kolkata">Mumbai/New Delhi</option>
+                                <option value="Asia/Seoul">Seoul</option>
+                            </optgroup>
+                            <optgroup label="Oceania">
+                                <option value="Australia/Sydney">Sydney</option>
+                                <option value="Australia/Melbourne">Melbourne</option>
+                                <option value="Pacific/Auckland">Auckland</option>
+                            </optgroup>
+                            <optgroup label="South America">
+                                <option value="America/Sao_Paulo">São Paulo</option>
+                                <option value="America/Buenos_Aires">Buenos Aires</option>
+                                <option value="America/Santiago">Santiago</option>
+                            </optgroup>
+                            <optgroup label="Africa">
+                                <option value="Africa/Cairo">Cairo</option>
+                                <option value="Africa/Johannesburg">Johannesburg</option>
+                                <option value="Africa/Lagos">Lagos</option>
+                            </optgroup>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="customName">Custom Label (Optional)</label>
+                        <input type="text" id="customName" placeholder="E.g., Home Office, Client HQ">
+                    </div>
+                    <button id="addClockBtn" class="btn">
+                        <i class="fas fa-plus-circle"></i> Add Clock
+                    </button>
+                </div>
+            </div>
+            
+            <div class="world-map">
+                <div class="map-placeholder">
+                    <i class="fas fa-map-marked-alt"></i>
+                </div>
+            </div>
+            
+            <footer>
+                <div>
+                    World Clock Dashboard | <span id="version">v2.0</span>
+                </div>
+                <div class="current-time">
+                    Local time: <span id="localTime"></span>
+                </div>
+            </footer>
+        </div>
+    </div>
+
+    <script>
+        // Store the clocks that are currently displayed
+        let activeClocks = [
+            { timezone: 'America/New_York', name: 'New York' },
+            { timezone: 'Europe/London', name: 'London' },
+            { timezone: 'Asia/Tokyo', name: 'Tokyo' },
+            { timezone: 'Australia/Sydney', name: 'Sydney' }
+        ];
+        
+        // Emoji map for regions
+        const regionEmojis = {
+            'America': '🌎',
+            'Europe': '🌍',
+            'Asia': '🌏',
+            'Australia': '🌏',
+            'Pacific': '🌏',
+            'Africa': '🌍'
+        };
+
+        // Get region from timezone
+        function getRegionFromTimezone(timezone) {
+            const region = timezone.split('/')[0];
+            return regionEmojis[region] || '🌐';
+        }
+        
+        // Function to create a clock element with more details and analog clock
+        function createClockElement(timezone, cityName) {
+            const clockDiv = document.createElement('div');
+            clockDiv.className = 'clock';
+            clockDiv.dataset.timezone = timezone;
+            
+            // Add background icon element
+            const bgIcon = document.createElement('div');
+            bgIcon.className = 'clock-background';
+            bgIcon.innerHTML = getRegionFromTimezone(timezone);
+            clockDiv.appendChild(bgIcon);
+            
+            // Create city heading with flag/region emoji
+            const cityDiv = document.createElement('div');
+            cityDiv.className = 'city';
+            cityDiv.innerHTML = `${getRegionFromTimezone(timezone)} ${cityName}`;
+            clockDiv.appendChild(cityDiv);
+            
+            // Add timezone info
+            const timezoneDiv = document.createElement('div');
+            timezoneDiv.className = 'timezone';
+            timezoneDiv.textContent = timezone.replace('_', ' ');
+            clockDiv.appendChild(timezoneDiv);
+            
+            // Add digital time display
+            const timeDiv = document.createElement('div');
+            timeDiv.className = 'time';
+            clockDiv.appendChild(timeDiv);
+            
+            // Add date display
+            const dateDiv = document.createElement('div');
+            dateDiv.className = 'date';
+            clockDiv.appendChild(dateDiv);
+            
+            // Create analog clock
+            const analogClock = document.createElement('div');
+            analogClock.className = 'analog-clock';
+            
+            // Add clock markers (hour marks)
+            for (let i = 1; i <= 12; i++) {
+                const marker = document.createElement('div');
+                marker.className = i % 3 === 0 ? 'clock-marker main' : 'clock-marker';
+                analogClock.appendChild(marker);
+            }
+            
+            // Add clock hands
+            const hourHand = document.createElement('div');
+            hourHand.className = 'hour-hand';
+            
+            const minuteHand = document.createElement('div');
+            minuteHand.className = 'minute-hand';
+            
+            const secondHand = document.createElement('div');
+            secondHand.className = 'second-hand';
+            
+            const clockCenter = document.createElement('div');
+            clockCenter.className = 'clock-center';
+            
+            analogClock.appendChild(hourHand);
+            analogClock.appendChild(minuteHand);
+            analogClock.appendChild(secondHand);
+            analogClock.appendChild(clockCenter);
+            
+            // Add time difference indicator
+            const clockFooter = document.createElement('div');
+            clockFooter.className = 'clock-footer';
+            
+            const timeDifference = document.createElement('div');
+            timeDifference.className = 'time-difference';
+            clockFooter.appendChild(timeDifference);
+            
+            // Add clock actions
+            const clockActions = document.createElement('div');
+            clockActions.className = 'clock-actions';
+            
+            const favoriteBtn = document.createElement('button');
+            favoriteBtn.className = 'btn-icon';
+            favoriteBtn.innerHTML = '<i class="far fa-star"></i>';
+            favoriteBtn.title = 'Add to favorites';
+            favoriteBtn.addEventListener('click', () => {
+                const icon = favoriteBtn.querySelector('i');
+                if (icon.classList.contains('far')) {
+                    icon.classList.replace('far', 'fas');
+                    icon.style.color = '#f6ad55';
+                } else {
+                    icon.classList.replace('fas', 'far');
+                    icon.style.color = '';
+                }
+            });
+            clockActions.appendChild(favoriteBtn);
+            
+            const removeBtn = document.createElement('button');
+            removeBtn.className = 'btn-icon';
+            removeBtn.innerHTML = '<i class="fas fa-times"></i>';
+            removeBtn.title = 'Remove clock';
+            removeBtn.addEventListener('click', () => {
+                clockDiv.style.animation = 'fadeIn 0.5s ease-out reverse forwards';
+                setTimeout(() => {
+                    clockDiv.remove();
+                    activeClocks = activeClocks.filter(clock => clock.timezone !== timezone);
+                }, 500);
+            });
+            clockActions.appendChild(removeBtn);
+            
+            clockFooter.appendChild(clockActions);
+            
+            // Add all elements to the clock div
+            clockDiv.appendChild(analogClock);
+            clockDiv.appendChild(clockFooter);
+            
+            return clockDiv;
+        }
+
+        // Function to calculate time difference
+        function calculateTimeDifference(timezone) {
+            const now = new Date();
+            const localTime = now.getTime();
+            
+            // Get the timezone offset in minutes
+            const options = { timeZone: timezone, timeZoneName: 'short' };
+            const timezoneDate = new Date(now.toLocaleString('en-US', options));
+            
+            const diff = (timezoneDate.getTime() - localTime) / (1000 * 60 * 60);
+            
+            if (diff === 0) return 'Same as local time';
+            
+            const hours = Math.abs(diff);
+            const direction = diff > 0 ? 'ahead' : 'behind';
+            
+            return `${hours.toFixed(1)} hours ${direction}`;
+        }
+
+        // Function to update all clocks
+        function updateClocks() {
+            const now = new Date();
+            
+            activeClocks.forEach(clock => {
+                const clockElement = document.querySelector(`.clock[data-timezone="${clock.timezone}"]`);
+                if (!clockElement) return;
+                
+                // Format the time for the specific timezone
+                const options = {
+                    timeZone: clock.timezone,
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    second: '2-digit',
+                    hour12: true
+                };
+                
+                const timeString = now.toLocaleTimeString('en-US', options);
+                
+                // Format the date for the specific timezone
+                const dateOptions = {
+                    timeZone: clock.timezone,
+                    weekday: 'long',
+                    year: 'numeric',
+                    month: 'short',
+                    day: 'numeric'
+                };
+                
+                const dateString = now.toLocaleDateString('en-US', dateOptions);
+                
+                // Update the digital clock display
+                clockElement.querySelector('.time').textContent = timeString;
+                clockElement.querySelector('.date').textContent = dateString;
+                
+                // Update the time difference
+                const timeDiff = calculateTimeDifference(clock.timezone);
+                clockElement.querySelector('.time-difference').textContent = timeDiff;
+                
+                // Get time components for analog clock
+                const timeParts = now.toLocaleString('en-US', {
+                    timeZone: clock.timezone,
+                    hour: 'numeric',
+                    minute: 'numeric',
+                    second: 'numeric',
+                    hour12: false
+                }).split(':');
+                
+                const hours = parseInt(timeParts[0]);
+                const minutes = parseInt(timeParts[1]);
+                const seconds = parseInt(timeParts[2]);
+                
+                // Calculate angles for clock hands
+                const hourAngle = (hours % 12) * 30 + minutes * 0.5;
+                const minuteAngle = minutes * 6;
+                const secondAngle = seconds * 6;
+                
+                // Update analog clock hands
+                const hourHand = clockElement.querySelector('.hour-hand');
+                const minuteHand = clockElement.querySelector('.minute-hand');
+                const secondHand = clockElement.querySelector('.second-hand');
+                
+                hourHand.style.transform = `rotate(${hourAngle}deg)`;
+                minuteHand.style.transform = `rotate(${minuteAngle}deg)`;
+                secondHand.style.transform = `rotate(${secondAngle}deg)`;
+            });
+            
+            // Update local time in footer
+            const localTimeElement = document.getElementById('localTime');
+            localTimeElement.textContent = now.toLocaleTimeString('en-US', {
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit'
+            });
+        }
