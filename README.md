@@ -87,9 +87,10 @@ This project is licensed under the **MIT License**. See the LICENSE file for det
 ## 📧 Contact
 
 For questions or feedback, feel free to reach out:
-💼 **Developer:** *Nicolette Mashaba*  
-📧 Email: [nene171408@gmail.com](nene171408@gmail.com)  
-🔗 [LinkedIn](https://www.linkedin.com/in/nicolette-mashaba-b094a5221/) | [GitHub](https://github.com/NickiMash17)  
+
+* 💼 **Developer:** *Nicolette Mashaba*  
+* 📧 Email: [nene171408@gmail.com](nene171408@gmail.com)  
+* 🔗 [LinkedIn](https://www.linkedin.com/in/nicolette-mashaba-b094a5221/) | [GitHub](https://github.com/NickiMash17)  
 
 Enjoy using the **World Clock Application**! 🌍⏰🌏
 
