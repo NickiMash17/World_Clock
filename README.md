@@ -61,7 +61,7 @@ cd world-clock-app
 * `styles.css`: Styles for the application.
 * `script.js`: JavaScript code for clocks, map, and interactivity.
 * `images/`: Folder for map images or other assets.
-* `screenshots/`: Folder for screenshots (optional).
+
 
 ## 🔧 Customization
 
@@ -87,9 +87,9 @@ This project is licensed under the **MIT License**. See the LICENSE file for det
 ## 📧 Contact
 
 For questions or feedback, feel free to reach out:
-* **nene171408@gmail.com**: Your Email 📩
-* **NickiMash17**: Your GitHub Profile 👨‍💻
+💼 **Developer:** *Nicolette Mashaba*  
+📧 Email: [nene171408@gmail.com](nene171408@gmail.com)  
+🔗 [LinkedIn](https://www.linkedin.com/in/nicolette-mashaba-b094a5221/) | [GitHub](https://github.com/NickiMash17)  
 
 Enjoy using the **World Clock Application**! 🌍⏰🌏
 
-\
